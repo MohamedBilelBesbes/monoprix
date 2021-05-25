@@ -1,0 +1,119 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Monoprix</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-light bg-light">
+        <a class="navbar-brand" href="/">
+            <img src="/static/img/logomonoprix.png"  alt="monoprix logo" width="80px" height="auto">
+        </a>
+        <a class="navbar-brand" href="/uploading">
+            <button class="btn btn-outline-secondary" onClick="window.location.reload();">Reset Page</button>
+        </a>
+        <a class="navbar-brand" href="/">
+            <button class="btn btn-outline-secondary" href="{{url_for('hello_world')}}">Go to Main Page</button>
+        </a>
+    </nav>
+<br>
+<br>
+<div id="uploadingclass">
+<div>
+    {% if labeling == 'Green' %}
+        <div class="alert alert-success" role="alert" style="
+        margin-left: 100px;
+        margin-right: 100px;
+    ">
+           {{ textofdisplay }}
+         </div>
+    {% endif %}
+    {% if labeling == 'Red' %}
+     <div class="alert alert-danger" role="alert">
+        {{ textofdisplay }}
+      </div>
+     <br>
+     {% endif %}
+    <h1>Expand the dataset</h1>
+    <div class="row">
+        <div class="col-md-12">
+    You can expand the dataset that you have to get more accurate information by uploading new data, you can do so by submitting the dataset that you want to add in one of the two formats :<h5>.xlsx or .csv</h5>
+    </div>
+    </div>
+</div>
+<br>
+        <div class="row">
+    <div class="col-md-4">
+        <div class="card card-chart">
+          <div class="card-header">
+            <div><h2>Uploading csv</h2></div>
+          </div>
+          <div class="card-body">
+              <h4>Put file here</h4>
+             <p>You can submit new data in .csv format to be upload from here, just choose the file and then click on the "upload" button</p> 
+    <form method="POST" action="{{ url_for('process') }}" enctype="multipart/form-data" class="form-inline">
+        <div class="input-group">
+        <div class="custom-file">
+            <input id="myfile" type="file" name="myfile">
+        </div>
+        </div>
+        <div class="input-group-append">
+            <button type="submit" class="btn btn-outline-secondary">
+                Upload
+            </button>
+        </div>
+    </form>
+    </div>
+    </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-chart">
+          <div class="card-header">
+            <div><h2>Uploading excel</h2></div>
+          </div>
+          <div class="card-body">
+              <h4>Put file here</h4>
+              <p>You can submit new data in .csv format to be upload from here, just choose the file and then click on the "upload" button</p> 
+    <form method="POST" action="{{ url_for('process') }}" enctype="multipart/form-data" class="form-inline">
+        <div class="input-group">
+        <div class="custom-file">
+            <input id="myfile" type="file" name="myfile">
+        </div>
+        </div>
+        <div class="input-group-append">
+            <button type="submit" class="btn btn-outline-secondary">
+                Upload
+            </button>
+        </div>
+    </form>
+    </div>
+    </div>
+    </div>
+    </div>
+    <br>
+    <br>
+    <div>
+        <h3>Which format sohuld I respect upon submitting the work ?</h3>
+        <p>it is required to submit a dataset by the following format :</p>
+        <br>
+        <img src="/static/img/examplexlsx.PNG" style="margin-left: 170px;" class="img-thumbnail img-fluid" alt="Responsive image">
+        <br>
+        <br>
+        <h4>You basically need to make sure that you are putting your input in this correct order :<br></h4>
+        <br>
+        <br>
+        <ul class="list-group">
+            <li class="list-group-item list-group-item-secondary">The first column is the Date column, the format of the date is as follows: day/month/year(wih four digits)</li>
+            <li class="list-group-item list-group-item-light">The second column is the shop_id column hich is an integer necessarily</li>
+            <li class="list-group-item list-group-item-secondary">The third column is the item_id column; please make sure to not put two different item_id values for the same item across two different data instances</li>
+            <li class="list-group-item list-group-item-light">The fourth column is the item_category column; please make sure to not put two different item_category values for the same item across two different data instances</li>
+            <li class="list-group-item list-group-item-secondary">The fifth column is the id_struct column; please make sure to not put two different id_struct values for the same item across two different data instances</li>
+            <li class="list-group-item list-group-item-light">The sixth column is the Price column; it sholud be putten as float, not as an integer. Note that it is OK to put different prices for the same product through different dates(prices of a given product does change from time to time)</li>
+            <li class="list-group-item list-group-item-secondary">The seventh column is the item_cnt_day; you should put it as integer and it has to be a strictly positive integer</li>
+        </ul>
+    </div>
+</div>
+    </body>
+</html> 

@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Monoprix</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-light bg-light">
+        <a class="navbar-brand" href="/">
+            <img src="/static/img/logomonoprix.png"  alt="monoprix logo" width="80px" height="auto">
+        </a>
+        <a class="navbar-brand" href="/">
+            <button class="btn btn-outline-secondary" onClick="window.location.reload();">Reset Page</button>
+        </a>
+        <a class="navbar-brand" href="/uploading">
+            <button class="btn btn-outline-secondary" href="{{url_for('uploading')}}">Go to Upload Page</button>
+        </a>
+    </nav>
+      <br>
+        {% if prediction_text %}
+        <div class="alert alert-danger" role="alert" style="
+        margin-left: 100px;
+        margin-right: 100px;
+    ">
+           {{ prediction_text }}
+         </div>
+        {% endif %}
+    <form action="{{ url_for('prediction')}}" method="post">
+        <div class="row" required>
+            <label for="input1">shop_id</label>
+            <input type="text" id="input1" class="form-control" placeholder="shop_id"  name="shop_id" required></br>
+        </div>
+        <div class="row">
+            <label for="input2">item_id</label>
+            <input type="text" id="input2" class="form-control" placeholder="item_id" name="item_id" required></br>
+        </div>
+    
+        <div class="row">
+            <label for="input4">Price</label>
+            <input type="text" id="input47" class="form-control" placeholder="price" name="price" required></br>
+        </div>
+        <div class="row">
+            <label for="input5">starting date</label>
+            <input type="text" id="input5" class="form-control" placeholder="YYYY-MM" name="date" required></br>
+        </div>
+    
+        <div class="row">
+            <label for="input6">period</label>
+            <select class="custom-select" id="input6" name="period" required>
+                <option selected>Choose period</option>
+                <option value=1>1 month</option>
+                <option value=2>2 months</option>
+                <option value=3>3 months</option>
+                <option value=4>4 months</option>
+            </select>
+        </div></br>
+            <button type="button" onclick="download_csv()" class="btn text-white btn-primary" style="background-color: red; border-color:red;margin: 50px;">Download</button>
+        <input type="submit" style="background-color: red; border-color:red;margin: 50px;" class="btn text-white btn-primary"> 
+    </form>
+</body>
+</html>
