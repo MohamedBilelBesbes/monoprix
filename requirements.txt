@@ -1,0 +1,7 @@
+flask == 1.1.2
+pandas == 1.2.2
+json == 2.0.9
+openpyxl == 3.0.7
+xlrd == 2.0.1
+datetime == 4.3
+pmdarima == 1.8.2

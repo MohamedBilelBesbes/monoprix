@@ -1,21 +1,13 @@
-from flask import Flask, render_template , request, jsonify, url_for , redirect , flash
+from flask import Flask, render_template , request
 from datetime import datetime
 from pmdarima import auto_arima
 import pickle
 import pandas as pd
-import sys
 import os
-import glob
-import re
-import time
 import json
-
-import sys
-
-from werkzeug.utils import secure_filename
 from gevent.pywsgi import WSGIServer
 from dateutil import relativedelta
-from flask import send_file
+
 
 app = Flask(__name__)
 
@@ -108,7 +100,7 @@ def prediction():
     ss["shop_id"] = x_test[0][0]
     ss["item_id"] = x_test[0][1]
     result = dfpred.to_html()
-    return render_template('graphed.html',data=dfpredict.to_json(),data1=dfpred.to_json(),data2=ss.to_json(),ss=copyall.values)
+    return render_template('graphed.html',data=dfpredict.to_json(),data2=ss.to_json(),ss=copyall.values)
 
 
 @app.route('/uploading', methods=['POST'])
@@ -116,11 +108,25 @@ def process():
     files = request.files["myfile"]
     print(files.filename)
     files.save(os.path.join('./uploads',files.filename))
+    tstexcel = False
+    tstcsv = False
+    try:
+        #data = pd.read_excel(open('./uploads/' + files.filename,'rb'),index_col=None)
+        #data = pd.read_excel(open('uploads/' + files.filename,'rb'),index_col=None)
+        #data = pd.read_excel(os.path.join('./uploads',files.filename),index_col=None)
+        #data = pd.read_excel(os.path.join('./uploads',files.filename),engine='openpyxl')
+        data = pd.read_excel('uploads/' + files.filename,engine="openpyxl")
+    except:
+        tstexcel = True
+        pass
     try:
         data = pd.read_csv(os.path.join('./uploads',files.filename),index_col=None)
     except:
-            os.remove('./uploads/' + files.filename)
-            return render_template('uploading.html', 
+        tstcsv = True
+        pass
+    if (tstcsv and tstexcel):
+        os.remove('./uploads/' + files.filename)
+        return render_template('uploading.html', 
   textofdisplay=
   'the uploaded file format is not .csv, please put the correct type of file',labeling = 'Red')
     if list(data.columns)==['Date', 'shop_id', 'item_id', 'item_category', 'id_struct', 'Price', 'item_cnt_day']:
