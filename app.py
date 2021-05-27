@@ -27,11 +27,22 @@ def graphed():
 def prediction():
     x_test = [[x for x in request.form.values()]]
     # ['shop_id', 'item_id' , 'Price' , 'starting date' , 'period']
-    x_test[0][0] = int(x_test[0][0])
-    x_test[0][1] = int(x_test[0][1])
-    x_test[0][2] = float(x_test[0][2])
-    numberofmonths = int(x_test[0][4])
-    startdate = datetime.strptime(x_test[0][3]+'-01', '%Y-%m-%d').date()
+    try:
+        x_test[0][0] = int(x_test[0][0])
+        x_test[0][1] = int(x_test[0][1])
+        mnth = x_test[0][3]
+        x_test[0][2] = float(x_test[0][2])
+        numberofmonths = int(x_test[0][4])
+    except:
+        return render_template('index.html',
+        prediction_text=
+  'You forgot to log in a certain value')
+    try:
+        startdate = datetime.strptime(x_test[0][3]+'-01', '%Y-%m-%d').date()
+    except:
+        return render_template('index.html',
+        prediction_text=
+  'item {} in shop {} does exist in our data but there seems to be a problem with the date that you putted; please submit a date by this form : yyyy-mm'.format(x_test[0][1],x_test[0][0]))
     d = {
     'shop_id': [x_test[0][0]],
     'item_id': [x_test[0][1]],
@@ -44,9 +55,16 @@ def prediction():
         prediction_text=
   'item {} in shop {} does not exist in our data'.format(x_test[0][1],x_test[0][0]))
     lastdateindf = df['month'].sort_values().iloc[-1]
+    firstdateindf = df['month'].sort_values().iloc[0]
     lastdateindf = datetime.strptime(lastdateindf, '%Y-%m-%d').date()
+    firstdateindf = datetime.strptime(firstdateindf, '%Y-%m-%d').date()
     df["month"] = pd.to_datetime(df["month"])
+    startdiffdate = (startdate.year - firstdateindf.year) * 12 + (startdate.month - firstdateindf.month)
     diffdate = (startdate.year - lastdateindf.year) * 12 + (startdate.month - lastdateindf.month)
+    if startdiffdate < 0:
+        return render_template('index.html',
+        prediction_text=
+  'item {} in shop {} does exist in our data but the date that you putted is earlier than the first date in the dataset'.format(x_test[0][1],x_test[0][0]))
     if diffdate > 0:
         forecaster = model.predict(n_periods=numberofmonths, return_conf_int=False)
         forecaster = forecaster.astype('int64')
@@ -74,7 +92,7 @@ def prediction():
     else:
         return render_template('index.html',
         prediction_text=
-  'item {} in shop {} does exist in our data but there seems to be a problem with the date that you putted'.format(x_test[0][1],x_test[0][0]))
+  'item {} in shop {} does exist in our data but there seems to be a problem with the date that you putted; please submit a date by this form : yyyy-mm'.format(x_test[0][1],x_test[0][0]))
     dates = []
     prices = []
     for i in range(numberofmonths):
@@ -84,8 +102,6 @@ def prediction():
     dfpred = df[["month","quantity"]]
     dfpredict = forecastdata[["month","quantity"]]
     dfpredict["quantity"] = dfpredict["quantity"].astype(float)
-    s1 = json.dumps(json.loads(dfpred.rename({'month': 'x', 'quantity': 'y'}, axis='columns').to_json(orient="records")))
-    # s2 = json.dumps(json.loads(dfpredict.rename({'month': 'x', 'quantity': 'y'}, axis='columns').to_json(orient="records")))
     dfpredict = dfpredict.rename({'month': 'Date', 'quantity': 'item_cnt_month'}, axis='columns')
     dfpred = dfpred.rename({'month': 'Date', 'quantity': 'predictions'}, axis='columns')
     ss = dfpred.copy()
@@ -111,10 +127,6 @@ def process():
     tstexcel = False
     tstcsv = False
     try:
-        #data = pd.read_excel(open('./uploads/' + files.filename,'rb'),index_col=None)
-        #data = pd.read_excel(open('uploads/' + files.filename,'rb'),index_col=None)
-        #data = pd.read_excel(os.path.join('./uploads',files.filename),index_col=None)
-        #data = pd.read_excel(os.path.join('./uploads',files.filename),engine='openpyxl')
         data = pd.read_excel('uploads/' + files.filename,engine="openpyxl")
     except:
         tstexcel = True
@@ -128,7 +140,7 @@ def process():
         os.remove('./uploads/' + files.filename)
         return render_template('uploading.html', 
   textofdisplay=
-  'the uploaded file format is not .csv, please put the correct type of file',labeling = 'Red')
+  'the uploaded file format is not excel nor .csv, please put the correct type of file',labeling = 'Red')
     if list(data.columns)==['Date', 'shop_id', 'item_id', 'item_category', 'id_struct', 'Price', 'item_cnt_day']:
         dictofdata = dataprocessing(data)
         print("new data preprocessed")
@@ -197,17 +209,8 @@ def dataprocessing(data):
                     price = holderbyitem['Price'].mean() # averaging the price because the price of a given item can change multiple times within one month
                     data.append([i,j,k,price,quantity])
     # creating a dataframe that has instances sorted by month
-    print("<<<<<<<days<<<<<<<<")
-    print(days)
-    print("<<<<<<<shops<<<<<<<<")
-    print(shops)
-    print("<<<<<<<<items<<<<<<<")
-    print(items)
-    print("<<<<<<<redata<<<<<<<<")
     redata = pd.DataFrame(data, columns=['month','shop_id','item_id','price','quantity'])
     redata['quantity'] = redata['quantity'].astype('int64')
-    print(redata)
-    print("<<<<<<<<<<<<<<<<<<<<<<")
     redatacopynmodels = redata.copy()
     # creating dataframes made of couples of shop_id and item_id and placing them in two ddictionaries; one with data that is monovariate and the other with data that is multivariate
     datasetswithdelete = dict()
@@ -218,9 +221,6 @@ def dataprocessing(data):
                 # holderbygrp = redatacopynmodels[redatacopynmodels['shop_id'] == i][redatacopynmodels['item_id'] == j]
                 holderbygrp = structuredgrouped.get_group((i,j)).sort_values(by=['month'])
                 1 / holderbygrp.shape[0]
-                print("!!!!!!!!!!!!!!!!!!!!")
-                print(holderbygrp.reset_index())
-                print("!!!!!!!!!!!!!!!!!!!!")
                 datasetswithdelete['shop' + str(i) + 'item' + str(j)] = holderbygrp.reset_index().drop(columns=['index','shop_id','item_id','price'])
             except:
                 continue
