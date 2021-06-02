@@ -177,7 +177,7 @@ def storing(dictofdata):
             print('model for {} was updated'.format(str(i)))
         else:
             dictofdata[i].to_csv('./datasets/' + str(i) + '.csv',index=False)
-            newmodel = auto_arima(hld['quantity'] , start_p = 0, start_q = 0, max_p = 12, max_q = 12, m=12 , max_order = None , start_P = 0, seasonal = True, d = 1 , D = 1, stepwise = True , error_action ='ignore' , random = False)
+            newmodel = auto_arima(dictofdata[i]['quantity'] , start_p = 0, start_q = 0, max_p = 12, max_q = 12, m=12 , max_order = None , start_P = 0, seasonal = True, d = 1 , D = 1, stepwise = True , error_action ='ignore' , random = False)
             with open('./models/' + str(i) + '.pkl', 'wb') as pkl:
                 pickle.dump(newmodel, pkl)
             print('model for {} was created'.format(str(i)))
