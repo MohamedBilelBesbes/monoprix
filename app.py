@@ -107,6 +107,7 @@ def prediction():
     ss = dfpred.copy()
     copyhist = df.copy().rename({'Price':'price'}, axis='columns')
     copypred = forecastdata.copy()
+    print(copyhist["price"])
     copyhist["total sales"] = copyhist["quantity"] * copyhist["price"]
     copypred["total sales"] = copypred["quantity"] * copypred["price"]
     copyhist["month"] = pd.to_datetime(copyhist["month"]).dt.date
@@ -176,6 +177,7 @@ def storing(dictofdata):
                 pickle.dump(newmodel, pkl)
             print('model for {} was updated'.format(str(i)))
         else:
+            print(dictofdata[i])
             dictofdata[i].to_csv('./datasets/' + str(i) + '.csv',index=False)
             newmodel = auto_arima(dictofdata[i]['quantity'] , start_p = 0, start_q = 0, max_p = 12, max_q = 12, m=12 , max_order = None , start_P = 0, seasonal = True, d = 1 , D = 1, stepwise = True , error_action ='ignore' , random = False)
             with open('./models/' + str(i) + '.pkl', 'wb') as pkl:
@@ -221,7 +223,7 @@ def dataprocessing(data):
                 # holderbygrp = redatacopynmodels[redatacopynmodels['shop_id'] == i][redatacopynmodels['item_id'] == j]
                 holderbygrp = structuredgrouped.get_group((i,j)).sort_values(by=['month'])
                 1 / holderbygrp.shape[0]
-                datasetswithdelete['shop' + str(i) + 'item' + str(j)] = holderbygrp.reset_index().drop(columns=['index','shop_id','item_id','price'])
+                datasetswithdelete['shop' + str(i) + 'item' + str(j)] = holderbygrp.reset_index().drop(columns=['index','shop_id','item_id'])
             except:
                 continue
 
