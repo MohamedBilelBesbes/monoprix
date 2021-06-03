@@ -216,7 +216,7 @@ var chart = new CanvasJS.Chart("stockChartContainer", {
 		//nullDataLineDashType: "solid",
 		xValueType: "dateTime",
 		xValueFormatString: "DD MMM hh:mm TT",
-		yValueFormatString: "#,##0.##\"%\"",
+		yValueFormatString: "#,##0.##\" items\"",
         dataPoints:ground_truth_history_graph.sort((a, b) => (a.x > b.x) ? 1 : -1)
         
 	},{
